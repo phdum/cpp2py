@@ -38,6 +38,8 @@ class DependencyAnalyzer:
          two sets : python modules to import, converters to include
         """
         ignored = [util.decay(x.type.get_canonical().spelling) for x in types_being_wrapped_or_converted]
+        ignored += ["type-parameter-0-0", "type-parameter-0-1"]
+        print ignored
         m,c = set(), set()
         unknown_types = {}
         for x in type_node_list : 

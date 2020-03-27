@@ -190,6 +190,17 @@ def get_methods(node, with_inherited = True, keep = keep_all):
     for b in get_base_classes(node):
         for m in get_methods(b, with_inherited, keep):
             yield m
+    
+    # Check if it is derived from a template function.
+    if node.kind == CursorKind.CLASS_DECL:
+        specialized_cursor = clang.cindex.conf.lib.clang_getSpecializedCursorTemplate(node)
+        if specialized_cursor is not None:
+            if (specialized_cursor.is_abstract_record() == True):
+                print("Warning: {} has pure virtual member functions.".format(node.displayname))
+            for c in specialized_cursor.get_children():
+                ok = c.kind == CursorKind.CXX_METHOD or (c.kind == CursorKind.FUNCTION_TEMPLATE and not is_constructor(node, c))
+                if ok and keep(c):
+                    yield c
 
     for c in node.get_children():
         ok = c.kind == CursorKind.CXX_METHOD or (c.kind == CursorKind.FUNCTION_TEMPLATE and not is_constructor(node, c))
